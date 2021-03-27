@@ -1,0 +1,38 @@
+private void getdata() {
+        RS_Application.preExecute(getActivity());
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.comman_url))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiInterface activeservice = retrofit.create(ApiInterface.class);
+
+        Call<Home_Model> call = activeservice.gethomeData();
+
+        call.enqueue(new Callback<Home_Model>() {
+            @Override
+            public void onResponse(Call<Home_Model> call, Response<Home_Model> response) {
+                Log.e("success1231", "" + response.raw().toString());
+                if (response.code() == 200) {
+                    try {
+                        if (response.body().getSuccess().equals("1")) {
+                            String success = response.body().getSuccess();
+                            Log.e("success123", success);
+                            Log.e("log",response.body().getAll_modal().toString());
+                            gridView.setAdapter(new Home_Adapter(getActivity(), response.body().getAll_modal()));
+                            Const.Home_page = "1";
+                            Const.home_list = response.body().getAll_modal();
+                        } else {
+                            RS_Application.postExecuten();
+                            Toast.makeText(context, "Data Not Found", Toast.LENGTH_SHORT).show();
+                        }
+                    }catch (Exception e){}
+                    RS_Application.postExecuten();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Home_Model> call, Throwable t) {
+                RS_Application.postExecuten();
+            }
+        });
+    }
